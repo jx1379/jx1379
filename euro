@@ -1,0 +1,129 @@
+import React, { useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+const euroData = {
+  "2020": { winner: "Italy", host: "Multiple countries", runnerUp: "England", topScorer: "Cristiano Ronaldo (Portugal) & Patrik Schick (Czech Republic)", goals: 142 },
+  "2016": { winner: "Portugal", host: "France", runnerUp: "France", topScorer: "Antoine Griezmann (France)", goals: 108 },
+  "2012": { winner: "Spain", host: "Poland & Ukraine", runnerUp: "Italy", topScorer: "Fernando Torres (Spain)", goals: 76 },
+  "2008": { winner: "Spain", host: "Austria & Switzerland", runnerUp: "Germany", topScorer: "David Villa (Spain)", goals: 77 },
+  "2004": { winner: "Greece", host: "Portugal", runnerUp: "Portugal", topScorer: "Milan Baroš (Czech Republic)", goals: 77 },
+  "2000": { winner: "France", host: "Belgium & Netherlands", runnerUp: "Italy", topScorer: "Patrick Kluivert (Netherlands) & Savo Milošević (Yugoslavia)", goals: 85 },
+  "1996": { winner: "Germany", host: "England", runnerUp: "Czech Republic", topScorer: "Alan Shearer (England)", goals: 64 },
+  "1992": { winner: "Denmark", host: "Sweden", runnerUp: "Germany", topScorer: "Henrik Larsen (Denmark), Karl-Heinz Riedle (Germany), Dennis Bergkamp (Netherlands) & Tomas Brolin (Sweden)", goals: 32 },
+  "1988": { winner: "Netherlands", host: "West Germany", runnerUp: "Soviet Union", topScorer: "Marco van Basten (Netherlands)", goals: 34 },
+  "1984": { winner: "France", host: "France", runnerUp: "Spain", topScorer: "Michel Platini (France)", goals: 41 },
+  "1980": { winner: "West Germany", host: "Italy", runnerUp: "Belgium", topScorer: "Klaus Allofs (West Germany)", goals: 27 },
+  "1976": { winner: "Czechoslovakia", host: "Yugoslavia", runnerUp: "West Germany", topScorer: "Dieter Müller (West Germany)", goals: 19 },
+  "1972": { winner: "West Germany", host: "Belgium", runnerUp: "Soviet Union", topScorer: "Gerd Müller (West Germany)", goals: 10 },
+  "1968": { winner: "Italy", host: "Italy", runnerUp: "Yugoslavia", topScorer: "Dragan Džajić (Yugoslavia)", goals: 13 },
+  "1964": { winner: "Spain", host: "Spain", runnerUp: "Soviet Union", topScorer: "Jesús María Pereda (Spain) & Ferenc Bene (Hungary)", goals: 13 },
+  "1960": { winner: "Soviet Union", host: "France", runnerUp: "Yugoslavia", topScorer: "François Heutte (France), Viktor Ponedelnik (Soviet Union), Milan Galić (Yugoslavia) & Dražan Jerković (Yugoslavia)", goals: 17 },
+};
+
+const Navigation = ({ setActivePage }) => (
+  <nav className="bg-blue-600 p-4">
+    <ul className="flex space-x-4 justify-center">
+      <li><button onClick={() => setActivePage('home')} className="text-white hover:underline">Home</button></li>
+      <li><button onClick={() => setActivePage('timeline')} className="text-white hover:underline">Timeline</button></li>
+      <li><button onClick={() => setActivePage('stats')} className="text-white hover:underline">Stats</button></li>
+    </ul>
+  </nav>
+);
+
+const Home = () => (
+  <div className="p-4">
+    <h1 className="text-3xl font-bold mb-4">Welcome to Euro Cup History</h1>
+    <p className="mb-4">Explore the rich history of the UEFA European Football Championship, from its inception in 1960 to the most recent tournament.</p>
+    <Alert>
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>New!</AlertTitle>
+      <AlertDescription>
+        Check out our new Stats page for interesting Euro Cup trends!
+      </AlertDescription>
+    </Alert>
+  </div>
+);
+
+const Timeline = () => {
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Euro Cup Timeline</h2>
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        {Object.keys(euroData).reverse().map(year => (
+          <button
+            key={year}
+            onClick={() => setSelectedYear(year)}
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+      {selectedYear && (
+        <div className="bg-gray-100 p-4 rounded">
+          <h3 className="text-xl font-bold mb-2">Euro {selectedYear}</h3>
+          <p><strong>Winner:</strong> {euroData[selectedYear].winner}</p>
+          <p><strong>Host:</strong> {euroData[selectedYear].host}</p>
+          <p><strong>Runner-up:</strong> {euroData[selectedYear].runnerUp}</p>
+          <p><strong>Top Scorer:</strong> {euroData[selectedYear].topScorer}</p>
+          <p><strong>Total Goals:</strong> {euroData[selectedYear].goals}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Stats = () => {
+  const data = Object.entries(euroData).map(([year, info]) => ({
+    year: parseInt(year),
+    goals: info.goals,
+  })).sort((a, b) => a.year - b.year);
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Euro Cup Statistics</h2>
+      <div className="h-[400px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="year" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="goals" stroke="#8884d8" activeDot={{ r: 8 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  const [activePage, setActivePage] = useState('home');
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-blue-700 text-white p-4 text-center">
+        <h1 className="text-4xl font-bold">Euro Cup History</h1>
+      </header>
+      <Navigation setActivePage={setActivePage} />
+      <main className="container mx-auto mt-4">
+        {activePage === 'home' && <Home />}
+        {activePage === 'timeline' && <Timeline />}
+        {activePage === 'stats' && <Stats />}
+      </main>
+      <footer className="bg-blue-700 text-white p-4 text-center mt-8">
+        <p>&copy; 2024 Euro Cup History. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
